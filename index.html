@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Study Assistant | CAPSTONE 41 - Notes & Study Guide Builder</title>
+  <meta name="description" content="CSE Capstone 41: Transform lecture notes into comprehensive study guides, summaries, quizzes, timelines, and audio overviews powered by Google NotebookLM and structured AI workflows.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="top-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <button id="mobile-menu-toggle" class="mobile-toggle-btn" aria-label="Toggle navigation menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <div class="logo-box">
+          <div class="logo-icon-wrap">
+            <svg class="logo-svg" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2L3 8L14 14L25 8L14 2Z" fill="url(#brandGrad1)" />
+              <path d="M3 13L14 19L25 13" stroke="url(#brandGrad2)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 18L14 24L25 18" stroke="url(#brandGrad2)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="brandGrad1" x1="3" y1="2" x2="25" y2="14" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#06B6D4"/>
+                  <stop offset="1" stop-color="#7C3AED"/>
+                </linearGradient>
+                <linearGradient id="brandGrad2" x1="3" y1="13" x2="25" y2="24" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#38BDF8"/>
+                  <stop offset="1" stop-color="#8B5CF6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <div class="title-row">
+              <span class="logo-title">Smart Study Assistant</span>
+              <span class="badge-capstone">CAPSTONE 41</span>
+            </div>
+            <span class="logo-tagline">Transform Lecture Notes into Smart Study Materials</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="btn-notebooklm" id="header-notebooklm-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span>Open NotebookLM</span>
+        </a>
+        <div class="header-status-pill" title="AI Verification & Integration Status">
+          <span class="status-dot"></span>
+          <span class="status-label">External AI Workflow</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout Frame -->
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-section-title">NAVIGATION MENU</div>
+        <nav class="nav-menu" id="main-nav">
+          <button class="nav-item active" data-target="dashboard" id="nav-dashboard">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+            <span>Home Dashboard</span>
+          </button>
+          
+          <button class="nav-item" data-target="upload" id="nav-upload">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Upload Notes</span>
+            <span class="nav-badge" id="nav-badge-docs">0</span>
+          </button>
+
+          <button class="nav-item" data-target="studyguide" id="nav-studyguide">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>Study Guide</span>
+          </button>
+
+          <button class="nav-item" data-target="summary" id="nav-summary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
+            <span>AI Summary</span>
+          </button>
+
+          <button class="nav-item" data-target="quiz" id="nav-quiz">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span>Quiz (10 MCQs)</span>
+            <span class="nav-tag">Interactive</span>
+          </button>
+
+          <button class="nav-item" data-target="faq" id="nav-faq">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>OS FAQs</span>
+          </button>
+
+          <button class="nav-item" data-target="audio" id="nav-audio">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            <span>Audio Overview</span>
+          </button>
+
+          <button class="nav-item" data-target="timeline" id="nav-timeline">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>Study Timeline</span>
+          </button>
+
+          <button class="nav-item" data-target="accuracy" id="nav-accuracy">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+            <span>Accuracy Verification</span>
+          </button>
+
+          <button class="nav-item" data-target="prompts" id="nav-prompts">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Prompt Library</span>
+          </button>
+
+          <button class="nav-item" data-target="comparison" id="nav-comparison">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"></path><path d="M4 20L21 3"></path><path d="M21 16v5h-5"></path><path d="M15 15l6 6"></path><path d="M4 4l5 5"></path></svg>
+            <span>Before & After</span>
+          </button>
+
+          <button class="nav-item" data-target="about" id="nav-about">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span>About Capstone 41</span>
+          </button>
+        </nav>
+
+        <!-- Sidebar Footer Card -->
+        <div class="sidebar-help-card">
+          <div class="help-card-badge">COLLEGE CSE CAPSTONE</div>
+          <h4>Need Help With NotebookLM?</h4>
+          <p>Follow our structured prompt templates to extract clean study materials safely.</p>
+          <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="help-card-link">
+            Open NotebookLM &rarr;
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main" id="app-main">
+
+      <!-- ================= SECTION 1: HOME DASHBOARD ================= -->
+      <section id="section-dashboard" class="content-section active">
+        <!-- Hero Welcome Banner -->
+        <div class="hero-card">
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span class="badge-dot"></span>
+              Computer Science & Engineering Capstone 41
+            </div>
+            <h1 class="hero-heading">Welcome to <span class="highlight-text">Smart Study Assistant</span></h1>
+            <p class="hero-desc">
+              Transform high-volume lecture notes into concise study guides, high-yield summaries, 
+              interactive quizzes, chronological study roadmaps, and NotebookLM Audio Overviews. 
+              Designed for college students tackling heavy academic workloads with responsible AI practices.
+            </p>
+            <div class="hero-cta-group">
+              <button class="btn btn-primary" onclick="navigateToSection('upload')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Upload Lecture Notes
+              </button>
+              <button class="btn btn-secondary" onclick="navigateToSection('studyguide')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                Explore OS Study Guides
+              </button>
+              <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-cyan">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                Open Google NotebookLM
+              </a>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <div class="visual-card-floating">
+              <div class="floating-header">
+                <span class="chip chip-cyan">Operating Systems</span>
+                <span class="chip chip-purple">CSE301</span>
+              </div>
+              <div class="floating-title">Lecture Pipeline Ready</div>
+              <ul class="pipeline-steps">
+                <li class="step-active"><span class="step-check">&#10003;</span> 1. Select Lecture PDFs</li>
+                <li class="step-active"><span class="step-check">&#10003;</span> 2. Run NotebookLM Prompts</li>
+                <li class="step-active"><span class="step-check">&#10003;</span> 3. Store Study Guides</li>
+                <li class="step-active"><span class="step-check">&#10003;</span> 4. Verify Accuracy</li>
+              </ul>
+              <div class="floating-footer">
+                <span>Verified with Responsible AI Principles</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Statistics Cards -->
+        <div class="dashboard-metrics-grid">
+          <div class="stat-card" id="metric-docs-card">
+            <div class="stat-icon-wrapper icon-navy">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Total Lecture Documents</span>
+              <div class="stat-value" id="stat-doc-count">0</div>
+              <span class="stat-subtext" id="stat-doc-subtext">Selected & tracked in session</span>
+            </div>
+          </div>
+
+          <div class="stat-card" id="metric-guides-card">
+            <div class="stat-icon-wrapper icon-purple">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Study Guides Created</span>
+              <div class="stat-value" id="stat-guide-count">5</div>
+              <span class="stat-subtext">Operating Systems core modules</span>
+            </div>
+          </div>
+
+          <div class="stat-card" id="metric-quiz-card">
+            <div class="stat-icon-wrapper icon-cyan">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Quiz Questions Ready</span>
+              <div class="stat-value" id="stat-quiz-count">10</div>
+              <span class="stat-subtext" id="stat-quiz-score">High-yield MCQs for OS exam</span>
+            </div>
+          </div>
+
+          <div class="stat-card" id="metric-audio-card">
+            <div class="stat-icon-wrapper icon-teal">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Audio Overviews</span>
+              <div class="stat-value" id="stat-audio-count">1</div>
+              <span class="stat-subtext">Player configured & ready</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Study Materials Grid -->
+        <div class="content-panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Recent Study Materials (Operating Systems Sample Suite)</h2>
+              <p class="panel-subtitle">Access ready-to-revise modules or add your own lecture extractions.</p>
+            </div>
+            <button class="btn btn-sm btn-outline" onclick="navigateToSection('studyguide')">View All Guides</button>
+          </div>
+          <div class="cards-grid" id="dashboard-recent-cards">
+            <!-- Dynamically populated from JS -->
+          </div>
+        </div>
+
+        <!-- Quick Workflow Guide -->
+        <div class="workflow-banner">
+          <div class="workflow-header">
+            <h3>How to Use Smart Study Assistant with NotebookLM</h3>
+            <span class="tag tag-accent">5-Step Capstone Methodology</span>
+          </div>
+          <div class="workflow-steps-grid">
+            <div class="workflow-box">
+              <div class="step-num">01</div>
+              <h4>Select Lectures</h4>
+              <p>Pick your university PDFs locally. Check sizes and organize topic-wise.</p>
+            </div>
+            <div class="workflow-box">
+              <div class="step-num">02</div>
+              <h4>Open NotebookLM</h4>
+              <p>Upload lecture PDFs into a new Google NotebookLM source notebook.</p>
+            </div>
+            <div class="workflow-box">
+              <div class="step-num">03</div>
+              <h4>Copy Prompt</h4>
+              <p>Grab specialized prompts from our Prompt Library to generate study guides or audio.</p>
+            </div>
+            <div class="workflow-box">
+              <div class="step-num">04</div>
+              <h4>Save & Revise</h4>
+              <p>Paste results into our Study Guide and AI Summary tools for offline revision.</p>
+            </div>
+            <div class="workflow-box">
+              <div class="step-num">05</div>
+              <h4>Verify & Test</h4>
+              <p>Check citations with our 8-Point Checklist and practice with the 10-question MCQ quiz.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 2: UPLOAD LECTURE NOTES ================= -->
+      <section id="section-upload" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">DOCUMENT WORKFLOW</span>
+            <h1 class="section-title">Upload Lecture Notes</h1>
+            <p class="section-desc">Select and manage your lecture PDF documents. Follow the NotebookLM connection pipeline.</p>
+          </div>
+          <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            Open NotebookLM
+          </a>
+        </div>
+
+        <!-- Academic Transparency Alert Box -->
+        <div class="alert-box alert-info">
+          <div class="alert-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          </div>
+          <div class="alert-content">
+            <strong>Educational Transparency Notice (Capstone Requirement):</strong>
+            <p>This web dashboard tracks your lecture documents in your browser. 
+            To maintain privacy, security, and true academic honesty, selecting files here 
+            <strong>does not automatically send them to Google servers</strong>. Follow the instructions below to upload your files to NotebookLM directly.</p>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
+          <!-- Left Column: Upload Area -->
+          <div class="panel-card">
+            <h3 class="panel-card-title">Select Local Lecture Documents (PDFs)</h3>
+            <p class="panel-card-desc">Choose one or multiple lecture slide decks or notes (.pdf format).</p>
+            
+            <div class="drop-zone" id="pdf-drop-zone">
+              <input type="file" id="pdf-file-input" accept=".pdf,application/pdf" multiple class="file-input-hidden">
+              <div class="drop-zone-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+              </div>
+              <p class="drop-zone-text"><strong>Click to browse</strong> or drag and drop lecture PDFs here</p>
+              <p class="drop-zone-sub">Supports multi-file selection (.pdf up to 50MB each)</p>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('pdf-file-input').click()">
+                Browse PDF Files
+              </button>
+            </div>
+
+            <!-- Upload Controls & Status -->
+            <div class="upload-controls-bar">
+              <div class="upload-status" id="upload-status-indicator">
+                <span class="status-indicator-dot idle"></span>
+                <span id="upload-status-text">No files selected</span>
+              </div>
+              <div class="upload-actions">
+                <button type="button" class="btn btn-outline-danger btn-sm" id="btn-clear-files" disabled>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  Clear All
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-load-sample-pdfs">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Load Sample OS PDFs
+                </button>
+              </div>
+            </div>
+
+            <!-- File List Table -->
+            <div class="file-list-wrap">
+              <h4 class="subheading">Selected Documents (<span id="file-count-label">0</span>)</h4>
+              <div id="file-list-container" class="file-list-container">
+                <div class="empty-state">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                  <p>No lecture PDFs added yet. Click browse or use sample documents.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Step-by-Step Instructions -->
+          <div class="panel-card instructions-card">
+            <div class="card-badge-pill">STUDENT INSTRUCTIONS</div>
+            <h3 class="panel-card-title">How to Process Your Lectures in Google NotebookLM</h3>
+            <p class="panel-card-desc">Follow these 5 verified steps to convert heavy lecture slides into smart learning aids.</p>
+            
+            <ol class="step-instruction-list">
+              <li>
+                <div class="step-circle">1</div>
+                <div class="step-detail">
+                  <strong>Open Google NotebookLM</strong>
+                  <p>Launch the official Google tool in your browser via your institutional Google account.</p>
+                  <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="link-btn">
+                    Visit notebooklm.google.com &rarr;
+                  </a>
+                </div>
+              </li>
+              <li>
+                <div class="step-circle">2</div>
+                <div class="step-detail">
+                  <strong>Create a New Notebook</strong>
+                  <p>Name it with your course code (e.g., <code>CSE301 - Operating Systems Unit 1</code>).</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-circle">3</div>
+                <div class="step-detail">
+                  <strong>Upload Your Lecture PDFs</strong>
+                  <p>Upload the same PDFs you have organized here into NotebookLM sources (up to 50 sources supported).</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-circle">4</div>
+                <div class="step-detail">
+                  <strong>Generate Study Materials & Audio</strong>
+                  <p>Use our <a href="javascript:void(0)" onclick="navigateToSection('prompts')" class="text-link">Prompt Library</a> to prompt NotebookLM for study guides, FAQs, and generate a 2-host "Audio Overview" deep dive.</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-circle">5</div>
+                <div class="step-detail">
+                  <strong>Paste & Verify in this Dashboard</strong>
+                  <p>Copy the results back into our Study Guide and AI Summary sections to store them locally, download .txt backups, and verify accuracy.</p>
+                </div>
+              </li>
+            </ol>
+
+            <div class="tip-box">
+              <span class="tip-icon">&#128161;</span>
+              <div>
+                <strong>Pro-tip for CSE Students:</strong>
+                <p>NotebookLM automatically grounds all answers in your uploaded PDF sources with inline citation numbers [1], [2] to prevent hallucinations!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 3: STUDY GUIDE PAGE ================= -->
+      <section id="section-studyguide" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">EXAM REVISION</span>
+            <h1 class="section-title">Operating Systems Study Guides</h1>
+            <p class="section-desc">Structured, high-yield revision notes with definitions, key concepts, algorithms, and exam prep tips.</p>
+          </div>
+          <div class="action-btn-group">
+            <button class="btn btn-secondary" id="btn-open-create-guide-modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Add Custom Guide
+            </button>
+            <button class="btn btn-outline" id="btn-copy-studyguide">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy Guide
+            </button>
+            <button class="btn btn-primary" id="btn-download-studyguide">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download (.TXT)
+            </button>
+          </div>
+        </div>
+
+        <!-- Topic Selector Bar -->
+        <div class="topic-selector-card">
+          <div class="filter-controls">
+            <div class="filter-group">
+              <label for="guide-subject-select">Subject:</label>
+              <select id="guide-subject-select" class="form-select">
+                <option value="Operating Systems">Operating Systems (CSE301)</option>
+                <option value="Computer Networks">Computer Networks (CSE302)</option>
+                <option value="DBMS">Database Management Systems (CSE303)</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="guide-topic-select">Select OS Topic:</label>
+              <select id="guide-topic-select" class="form-select">
+                <option value="os-structure">1. Operating System Structure</option>
+                <option value="process-scheduling">2. Process Scheduling</option>
+                <option value="deadlock">3. Deadlock & Coffman Conditions</option>
+                <option value="memory-management">4. Memory Management</option>
+                <option value="paging">5. Paging & Segmentation</option>
+              </select>
+            </div>
+          </div>
+          <div class="badge-sample-indicator">
+            <span class="badge-pill-sample">&#10004; Realistic Academic Sample Content</span>
+          </div>
+        </div>
+
+        <!-- Study Guide Display Canvas -->
+        <article class="studyguide-display-card" id="studyguide-display-container">
+          <!-- Dynamically populated from JS based on selected topic -->
+        </article>
+      </section>
+
+      <!-- ================= SECTION 4: AI SUMMARY PAGE ================= -->
+      <section id="section-summary" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">NOTEBOOKLM PROMPT PIPELINE</span>
+            <h1 class="section-title">AI Summary Generator & NotebookLM Bridge</h1>
+            <p class="section-desc">Create targeted summary prompts, run them in NotebookLM, and store verified summaries.</p>
+          </div>
+          <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-cyan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            Open NotebookLM
+          </a>
+        </div>
+
+        <div class="two-column-grid">
+          <!-- Left: Input & Prompt Form -->
+          <div class="panel-card">
+            <h3 class="panel-card-title">1. Lecture Input & Prompt Builder</h3>
+            <p class="panel-card-desc">Configure your lecture topic and summary granularity.</p>
+
+            <form id="summary-form" onsubmit="event.preventDefault();">
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="summary-subject" class="form-label">Subject Name</label>
+                  <input type="text" id="summary-subject" class="form-input" value="Operating Systems" placeholder="e.g. Operating Systems">
+                </div>
+                <div class="form-group flex-1">
+                  <label for="summary-topic" class="form-label">Topic / Chapter</label>
+                  <input type="text" id="summary-topic" class="form-input" value="Process Synchronization & Critical Section" placeholder="e.g. Deadlock Prevention">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Summary Granularity Level</label>
+                <div class="radio-chip-group">
+                  <label class="radio-chip">
+                    <input type="radio" name="summary-length" value="Short" checked>
+                    <span>Short (Quick Exam Recap)</span>
+                  </label>
+                  <label class="radio-chip">
+                    <input type="radio" name="summary-length" value="Medium">
+                    <span>Medium (Core Concepts & Formulas)</span>
+                  </label>
+                  <label class="radio-chip">
+                    <input type="radio" name="summary-length" value="Detailed">
+                    <span>Detailed (In-depth Academic Breakdown)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="summary-raw-notes" class="form-label">Lecture Excerpt / Notes (Optional reference)</label>
+                <textarea id="summary-raw-notes" class="form-textarea" rows="4" placeholder="Paste excerpt from your lecture slide or textbook if desired..."></textarea>
+              </div>
+
+              <!-- Generated Ready-to-Copy Prompt for NotebookLM -->
+              <div class="prompt-preview-box">
+                <div class="prompt-box-header">
+                  <span class="prompt-box-title">Generated Prompt for Google NotebookLM</span>
+                  <button type="button" class="btn btn-xs btn-outline" id="btn-copy-gen-prompt">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    Copy Prompt
+                  </button>
+                </div>
+                <div class="prompt-box-content" id="generated-prompt-text">
+                  <!-- Generated dynamically -->
+                </div>
+              </div>
+
+              <div class="form-actions-row">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-load-sample-summary">
+                  Load Realistic Sample Summary
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" id="btn-clear-summary-inputs">
+                  Clear
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Summary Output & Paste Area -->
+          <div class="panel-card">
+            <div class="flex-between">
+              <div>
+                <h3 class="panel-card-title">2. Formatted Summary Workspace</h3>
+                <p class="panel-card-desc">Paste or read your verified lecture summary here.</p>
+              </div>
+              <span class="chip chip-cyan" id="summary-badge-type">Preloaded Sample</span>
+            </div>
+
+            <div class="summary-display-area" id="summary-display-box" contenteditable="true" aria-label="Editable summary content">
+              <!-- Dynamically populated or student editable -->
+            </div>
+
+            <div class="summary-actions-footer">
+              <button class="btn btn-outline btn-sm" id="btn-copy-summary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy Summary
+              </button>
+              <button class="btn btn-primary btn-sm" id="btn-save-summary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Save to Local Storage
+              </button>
+            </div>
+
+            <!-- Saved Summaries List Accordion -->
+            <div class="saved-summaries-list-box">
+              <h4 class="subheading">Your Saved Summaries (<span id="saved-summary-count">0</span>)</h4>
+              <div id="saved-summaries-container" class="saved-summaries-list">
+                <!-- Dynamically rendered -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 5: QUIZ PAGE ================= -->
+      <section id="section-quiz" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">KNOWLEDGE EVALUATION</span>
+            <h1 class="section-title">Operating Systems Interactive Quiz</h1>
+            <p class="section-desc">10 high-yield Multiple Choice Questions covering Process Scheduling, Deadlock, Paging, and Memory.</p>
+          </div>
+          <div class="quiz-header-badge">
+            <span class="badge-pill-sample">10 Sample CSE Exam Questions</span>
+          </div>
+        </div>
+
+        <!-- Quiz Progress and Score Bar -->
+        <div class="quiz-hud-card">
+          <div class="hud-item">
+            <span class="hud-label">Current Progress</span>
+            <div class="hud-progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill" id="quiz-progress-bar" style="width: 10%;"></div>
+              </div>
+              <span class="hud-value" id="quiz-progress-text">Question 1 of 10</span>
+            </div>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Current Score</span>
+            <div class="hud-score-badge">
+              <span id="quiz-current-score">0</span> / 10
+            </div>
+          </div>
+          <div class="hud-item">
+            <button class="btn btn-outline btn-sm" id="btn-restart-quiz">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+              Restart Quiz
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Question Container -->
+        <div class="quiz-container-card" id="quiz-active-card">
+          <div class="quiz-card-header">
+            <div class="quiz-topic-badge" id="quiz-question-category">Operating System Functions</div>
+            <span class="quiz-qnum" id="quiz-question-number">Question 1 of 10</span>
+          </div>
+
+          <h2 class="quiz-question-text" id="quiz-question-title">Loading Question...</h2>
+
+          <div class="quiz-options-list" id="quiz-options-container">
+            <!-- Options dynamically injected -->
+          </div>
+
+          <!-- Answer Explanation Box (Shown after submit) -->
+          <div class="quiz-explanation-box hidden" id="quiz-explanation-container">
+            <div class="explanation-header">
+              <span class="explanation-icon" id="explanation-icon">&#10004;</span>
+              <strong id="explanation-title">Correct!</strong>
+            </div>
+            <p id="explanation-text" class="explanation-body"></p>
+          </div>
+
+          <!-- Quiz Action Buttons -->
+          <div class="quiz-footer-actions">
+            <button class="btn btn-primary" id="btn-submit-answer" disabled>Submit Answer</button>
+            <button class="btn btn-secondary hidden" id="btn-next-question">Next Question &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Quiz Completion Result Modal / Card (Hidden until finished) -->
+        <div class="quiz-results-card hidden" id="quiz-results-container">
+          <div class="result-trophy">&#127942;</div>
+          <h2 class="result-title">Quiz Completed!</h2>
+          <p class="result-desc">Here is your performance on Operating Systems Core Concepts:</p>
+          <div class="result-score-circle">
+            <span class="final-score-num" id="final-score-value">0</span>
+            <span class="final-score-total">/ 10</span>
+          </div>
+          <p class="result-feedback" id="final-score-feedback"></p>
+          <div class="result-actions">
+            <button class="btn btn-primary" id="btn-retake-quiz-finish">Try Again</button>
+            <button class="btn btn-secondary" onclick="navigateToSection('studyguide')">Review Study Guides</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 6: FAQ PAGE ================= -->
+      <section id="section-faq" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">EXAM VIVA & CONCEPTS</span>
+            <h1 class="section-title">Operating Systems Frequently Asked Questions</h1>
+            <p class="section-desc">Searchable, expandable Q&A extracted from core Operating System lecture modules.</p>
+          </div>
+          <button class="btn btn-outline" id="btn-expand-all-faqs">Expand All</button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar-wrap">
+          <div class="search-input-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="faq-search-input" class="search-input" placeholder="Search FAQs by keyword (e.g., deadlock, paging, scheduler, semaphore)...">
+            <button id="faq-clear-search" class="clear-search-btn" title="Clear search">&times;</button>
+          </div>
+          <div class="faq-count-pill">
+            Showing <span id="faq-count-display">8</span> questions
+          </div>
+        </div>
+
+        <!-- Accordion FAQ Container -->
+        <div class="faq-accordion-container" id="faq-list">
+          <!-- Dynamically injected from JS -->
+        </div>
+
+        <!-- Add Custom FAQ Box -->
+        <div class="panel-card add-faq-card">
+          <h3 class="panel-card-title">Add Custom College Viva Question & Answer</h3>
+          <p class="panel-card-desc">Have a specific professor question from class? Add it to your local FAQ repository.</p>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <input type="text" id="custom-faq-question" class="form-input" placeholder="Enter Question (e.g. What is Belady's Anomaly?)">
+            </div>
+            <div class="form-group flex-1">
+              <input type="text" id="custom-faq-category" class="form-input" placeholder="Category (e.g. Memory Management)">
+            </div>
+          </div>
+          <div class="form-group">
+            <textarea id="custom-faq-answer" class="form-textarea" rows="2" placeholder="Enter clear, concise answer..."></textarea>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-add-custom-faq">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add to FAQ List
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 7: AUDIO OVERVIEW PAGE ================= -->
+      <section id="section-audio" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">NOTEBOOKLM AUDIO DEEP DIVE</span>
+            <h1 class="section-title">Audio Overview & Podcast Player</h1>
+            <p class="section-desc">Listen to lecture audio overviews generated in Google NotebookLM or play local study recordings.</p>
+          </div>
+          <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            Open NotebookLM Audio Studio
+          </a>
+        </div>
+
+        <!-- Academic Honesty Notice -->
+        <div class="alert-box alert-warning">
+          <div class="alert-icon">&#9888;</div>
+          <div class="alert-content">
+            <strong>Audio Integrity Notice:</strong>
+            <p>Google NotebookLM generates a 2-host conversational podcast ("Audio Overview") directly inside its interface. 
+            This website provides a real HTML5 Audio Player for you to load and listen to your downloaded audio overview MP3 or generate a sample lecture audio tone preview without artificial AI impersonations.</p>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
+          <!-- Audio Player Panel -->
+          <div class="panel-card audio-player-panel">
+            <div class="audio-track-header">
+              <div class="audio-art-disc" id="audio-art-disc">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+              </div>
+              <div class="audio-meta-info">
+                <span class="chip chip-purple" id="audio-source-badge">Built-in Synthesized Preview</span>
+                <h3 class="audio-track-title" id="audio-track-filename">OS_Module1_AudioOverview.mp3</h3>
+                <p class="audio-track-subtitle" id="audio-track-desc">Operating System Principles - NotebookLM Discussion</p>
+              </div>
+            </div>
+
+            <!-- Native Audio Element (Hidden, controlled by custom UI) -->
+            <audio id="main-audio-element" preload="metadata"></audio>
+
+            <!-- Custom Audio Controls Canvas -->
+            <div class="custom-player-ui">
+              <!-- Waveform / Visualizer Bar -->
+              <div class="audio-visualizer-bars" id="audio-visualizer">
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              </div>
+
+              <!-- Seek Slider & Time -->
+              <div class="scrubber-wrap">
+                <input type="range" id="audio-seek-slider" min="0" max="100" value="0" class="audio-range-slider">
+                <div class="audio-time-row">
+                  <span id="audio-current-time">0:00</span>
+                  <span id="audio-duration-time">0:00</span>
+                </div>
+              </div>
+
+              <!-- Playback Buttons Row -->
+              <div class="player-controls-row">
+                <button type="button" class="btn-ctrl-sec" id="btn-audio-rewind" title="Rewind 10 seconds">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"></path></svg>
+                  <span>-10s</span>
+                </button>
+
+                <button type="button" class="btn-ctrl-primary" id="btn-audio-play-pause" title="Play / Pause">
+                  <svg id="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <svg id="pause-icon" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                </button>
+
+                <button type="button" class="btn-ctrl-sec" id="btn-audio-forward" title="Forward 10 seconds">
+                  <span>+10s</span>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"></path></svg>
+                </button>
+              </div>
+
+              <!-- Volume Control -->
+              <div class="volume-control-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                <input type="range" id="audio-volume-slider" min="0" max="1" step="0.05" value="0.8" class="audio-range-slider volume-slider">
+                <span id="audio-volume-pct">80%</span>
+              </div>
+            </div>
+
+            <!-- Load Local Audio File Area -->
+            <div class="load-audio-file-box">
+              <label for="local-audio-file-input" class="form-label">
+                <strong>Select Local Audio File (.mp3, .wav, .m4a)</strong>
+              </label>
+              <input type="file" id="local-audio-file-input" accept="audio/*" class="form-file-control">
+              <div class="load-audio-actions">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-generate-synthesized-audio">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  Generate Realistic Lecture Audio
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructions on Audio Overview in NotebookLM -->
+          <div class="panel-card instructions-card">
+            <div class="card-badge-pill">HOW-TO GUIDE</div>
+            <h3 class="panel-card-title">How to Generate an Audio Overview in NotebookLM</h3>
+            <p class="panel-card-desc">Google NotebookLM features an innovative Deep Dive Audio Overview that creates a 2-host conversational podcast discussing your lecture materials.</p>
+
+            <ol class="step-instruction-list">
+              <li>
+                <div class="step-circle">1</div>
+                <div class="step-detail">
+                  <strong>Open your Notebook in NotebookLM</strong>
+                  <p>Navigate to your Operating Systems notebook containing your uploaded lecture PDFs.</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-circle">2</div>
+                <div class="step-detail">
+                  <strong>Locate the Audio Overview Studio</strong>
+                  <p>In the upper right corner of the Notebook guide, locate the <strong>"Audio Overview"</strong> card.</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-circle">3</div>
+                <div class="step-detail">
+                  <strong>Click "Generate"</strong>
+                  <p>NotebookLM will synthesize a 10 to 15-minute podcast between two AI hosts who explain complex algorithms, memory paging, and deadlock with lively analogies.</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-circle">4</div>
+                <div class="step-detail">
+                  <strong>Download the Generated Audio</strong>
+                  <p>Click the 3 dots menu on the generated audio player and choose <strong>"Download"</strong> (.mp3 file).</p>
+                </div>
+              </li>
+              <li>
+                <div class="step-circle">5</div>
+                <div class="step-detail">
+                  <strong>Load into this Player</strong>
+                  <p>Select the downloaded .mp3 using the file picker on the left to listen with our custom controls and progress tracking.</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 8: TIMELINE PAGE ================= -->
+      <section id="section-timeline" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">LOGICAL CURRICULUM PROGRESSION</span>
+            <h1 class="section-title">Operating Systems Study Timeline</h1>
+            <p class="section-desc">A step-by-step chronological roadmap designed to guide your exam preparation systematically.</p>
+          </div>
+          <div class="timeline-stats-badge">
+            <span id="timeline-mastery-count">0 of 6 Topics Mastered</span>
+          </div>
+        </div>
+
+        <div class="timeline-container" id="timeline-milestones-container">
+          <!-- Timeline elements dynamically injected from JS -->
+        </div>
+      </section>
+
+      <!-- ================= SECTION 9: ACCURACY VERIFICATION PAGE ================= -->
+      <section id="section-accuracy" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">RESPONSIBLE AI IN HIGHER EDUCATION</span>
+            <h1 class="section-title">AI Answer Accuracy & Hallucination Checklist</h1>
+            <p class="section-desc">Verify AI-generated summaries and study guides against your original lecture slides.</p>
+          </div>
+          <div class="verification-badge-box">
+            <span class="badge-status-unverified" id="verification-status-pill">Pending Verification</span>
+          </div>
+        </div>
+
+        <!-- Academic Disclaimer -->
+        <div class="alert-box alert-warning">
+          <div class="alert-icon">&#9888;</div>
+          <div class="alert-content">
+            <strong>Crucial Capstone AI Governance Disclaimer:</strong>
+            <p>This website promotes responsible, ethical AI usage. 
+            <strong>No automated tool or AI system can independently guarantee 100% factual accuracy.</strong> 
+            Always cross-reference generated definitions, formulas, and scheduling algorithms with your primary university textbook and professor's lecture slides before tests.</p>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
+          <!-- Left: 8-Point Checklist -->
+          <div class="panel-card">
+            <div class="flex-between">
+              <h3 class="panel-card-title">8-Point Verification Checklist</h3>
+              <span class="checklist-progress-text" id="checklist-progress-text">0 / 8 Verified (0%)</span>
+            </div>
+            <div class="progress-bar mb-3">
+              <div class="progress-fill" id="verification-progress-fill" style="width: 0%;"></div>
+            </div>
+
+            <div class="checklist-items-group" id="verification-checklist-container">
+              <!-- Dynamically populated checklist items -->
+            </div>
+
+            <div class="checklist-actions-row">
+              <button class="btn btn-primary btn-sm" id="btn-save-verification">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Save Verification Audit
+              </button>
+              <button class="btn btn-outline btn-sm" id="btn-reset-verification">
+                Reset All Checks
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Verification Notes & Saved Audits -->
+          <div class="panel-card">
+            <h3 class="panel-card-title">Verification Field Notes & Source Audit</h3>
+            <p class="panel-card-desc">Record page numbers, textbook citations, and discrepancies discovered during your audit.</p>
+
+            <div class="form-group">
+              <label for="verification-notes" class="form-label">Student Audit Observations</label>
+              <textarea id="verification-notes" class="form-textarea" rows="6" placeholder="Example: Slide 24 of Unit 3 confirms Banker's algorithm safe sequence definition. NotebookLM summary was verified accurate against Galvin OS 10th edition chapter 8..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="audit-topic-name" class="form-label">Verified Subject / Topic</label>
+                <input type="text" id="audit-topic-name" class="form-input" value="Operating Systems - Unit 3 Deadlocks">
+              </div>
+              <div class="form-group flex-1">
+                <label for="audit-verifier-name" class="form-label">Verifier Name / Roll No.</label>
+                <input type="text" id="audit-verifier-name" class="form-input" placeholder="e.g. Student Reviewer">
+              </div>
+            </div>
+
+            <div class="saved-audits-box">
+              <h4 class="subheading">Saved Verification Audits</h4>
+              <div id="saved-audits-list" class="saved-audits-list">
+                <!-- Dynamically populated from localStorage -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 10: PROMPT LIBRARY ================= -->
+      <section id="section-prompts" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">OPTIMIZED REUSABLE TEMPLATES</span>
+            <h1 class="section-title">NotebookLM & AI Prompt Library</h1>
+            <p class="section-desc">Pre-tested, academically-sound prompt templates crafted specifically for university CSE coursework.</p>
+          </div>
+          <div class="prompt-filter-chips" id="prompt-category-filter">
+            <button class="chip-filter active" data-cat="all">All Prompts (7)</button>
+            <button class="chip-filter" data-cat="guides">Study Guides</button>
+            <button class="chip-filter" data-cat="summaries">Summaries</button>
+            <button class="chip-filter" data-cat="quizzes">Quizzes & FAQs</button>
+            <button class="chip-filter" data-cat="accuracy">Verification</button>
+          </div>
+        </div>
+
+        <div class="prompt-cards-grid" id="prompt-library-cards">
+          <!-- Dynamically populated from JS -->
+        </div>
+      </section>
+
+      <!-- ================= SECTION 11: BEFORE & AFTER COMPARISON ================= -->
+      <section id="section-comparison" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">ACADEMIC EFFICACY ANALYSIS</span>
+            <h1 class="section-title">Before and After Study Transformation</h1>
+            <p class="section-desc">Demonstrates how raw, unstructured lecture slides are converted into concise, high-yield study aids.</p>
+          </div>
+        </div>
+
+        <!-- Academic Honesty Banner -->
+        <div class="alert-box alert-info">
+          <div class="alert-icon">&#8505;</div>
+          <div class="alert-content">
+            <strong>Honest Capstone Evaluation Policy:</strong>
+            <p>In accordance with ethical academic research practices, this comparison does not invent unverified time savings or fabricated percentages. 
+            Instead, it highlights real qualitative benefits in structure, clarity, and rapid exam recall.</p>
+          </div>
+        </div>
+
+        <!-- Before & After Comparison Grid -->
+        <div class="comparison-grid">
+          <!-- Before Card -->
+          <div class="comparison-card before-card">
+            <div class="comparison-header">
+              <span class="comparison-tag tag-before">BEFORE AI ASSISTANCE</span>
+              <h3 class="comparison-title">Raw Lecture Materials</h3>
+              <p class="comparison-sub">Typical college student experience</p>
+            </div>
+            <ul class="comparison-features">
+              <li>
+                <span class="comp-icon red">&times;</span>
+                <div>
+                  <strong>High Volume & Overwhelming</strong>
+                  <p>80 to 120 disorganized PowerPoint slides per chapter with dense, unstructured bullet points.</p>
+                </div>
+              </li>
+              <li>
+                <span class="comp-icon red">&times;</span>
+                <div>
+                  <strong>Difficult Pre-Exam Revision</strong>
+                  <p>Students must re-read hundreds of pages just to find key formulas, definitions, and Gantt charts.</p>
+                </div>
+              </li>
+              <li>
+                <span class="comp-icon red">&times;</span>
+                <div>
+                  <strong>Passive Learning Mode</strong>
+                  <p>No immediate self-testing, interactive checks, or conversational audio overviews.</p>
+                </div>
+              </li>
+              <li>
+                <span class="comp-icon red">&times;</span>
+                <div>
+                  <strong>Scattered Concept Clarity</strong>
+                  <p>Definitions are spread haphazardly across multiple slide decks without consolidated summaries.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- After Card -->
+          <div class="comparison-card after-card">
+            <div class="comparison-header">
+              <span class="comparison-tag tag-after">AFTER NOTEBOOKLM WORKFLOW</span>
+              <h3 class="comparison-title">Smart Study Assistant</h3>
+              <p class="comparison-sub">Enhanced comprehension with grounding</p>
+            </div>
+            <ul class="comparison-features">
+              <li>
+                <span class="comp-icon green">&#10004;</span>
+                <div>
+                  <strong>Consolidated Study Guides</strong>
+                  <p>Key definitions, concepts, and algorithms synthesized into modular cards with copy and export features.</p>
+                </div>
+              </li>
+              <li>
+                <span class="comp-icon green">&#10004;</span>
+                <div>
+                  <strong>Grounded AI Summaries</strong>
+                  <p>Tailored short, medium, or detailed recaps strictly tied to lecture slide references [1], [2].</p>
+                </div>
+              </li>
+              <li>
+                <span class="comp-icon green">&#10004;</span>
+                <div>
+                  <strong>Active Retrieval Testing</strong>
+                  <p>Practice with 10 high-yield MCQs and collapsible viva FAQs with instant explanations.</p>
+                </div>
+              </li>
+              <li>
+                <span class="comp-icon green">&#10004;</span>
+                <div>
+                  <strong>Auditory Reinforcement</strong>
+                  <p>Listen to 2-host conversational podcast overviews while commuting or before lectures.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Student Self-Reflection Notes -->
+        <div class="panel-card mt-4">
+          <h3 class="panel-card-title">Student Study Reflection & Comparison Notes</h3>
+          <p class="panel-card-desc">Record your personal observations on how using NotebookLM transformed your retention of this course.</p>
+          <div class="form-group">
+            <textarea id="student-reflection-notes" class="form-textarea" rows="4" placeholder="Enter your own observations (e.g., Noticeable reduction in time spent searching for Deadlock definitions before exams; audio overview helped grasp Banker's algorithm while walking...)..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-save-reflection">
+            Save Reflection Notes
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 12: ABOUT PROJECT PAGE ================= -->
+      <section id="section-about" class="content-section">
+        <div class="section-title-wrap">
+          <div>
+            <span class="section-kicker">CAPSTONE 41 SPECIFICATION</span>
+            <h1 class="section-title">About the Project</h1>
+            <p class="section-desc">Comprehensive CSE Capstone Project Documentation, Architecture, and Academic Guidelines.</p>
+          </div>
+          <span class="badge-capstone">Academic Year 2026</span>
+        </div>
+
+        <!-- Project Overview Card -->
+        <div class="panel-card about-hero-card">
+          <div class="about-grid-header">
+            <div>
+              <span class="chip chip-purple">CSE CAPSTONE 41</span>
+              <h2 class="about-title">Smart Notes and Study Guide Builder with NotebookLM</h2>
+              <p class="about-lead">
+                An educational technology software system engineered to streamline academic revision 
+                for undergraduate engineering students by bridging university lecture slides with 
+                Google NotebookLM's source-grounded intelligence.
+              </p>
+            </div>
+            <div class="tech-stack-badges">
+              <span class="tech-badge">HTML5</span>
+              <span class="tech-badge">Vanilla CSS3</span>
+              <span class="tech-badge">JavaScript (ES6+)</span>
+              <span class="tech-badge">Browser LocalStorage</span>
+              <span class="tech-badge">Google NotebookLM</span>
+              <span class="tech-badge">Web Audio API</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Spec Grid -->
+        <div class="about-details-grid">
+          <div class="about-detail-card">
+            <div class="detail-icon">&#127919;</div>
+            <h3>Project Objective</h3>
+            <p>
+              Develop a modern, attractive, beginner-friendly web dashboard that empowers college students 
+              to convert heavy lecture slide decks and readings into exam study guides, summaries, viva FAQs, 
+              MCQ quizzes, timelines, and audio overviews through structured AI workflows.
+            </p>
+          </div>
+
+          <div class="about-detail-card">
+            <div class="detail-icon">&#128679;</div>
+            <h3>Problem Statement</h3>
+            <p>
+              Undergraduate engineering students handle 5 to 6 heavy technical courses simultaneously, 
+              accumulating thousands of unstructured slides per semester. Manual revision note creation 
+              is tedious, while ungrounded public AI models suffer from severe factual hallucinations.
+            </p>
+          </div>
+
+          <div class="about-detail-card">
+            <div class="detail-icon">&#128101;</div>
+            <h3>Target Audience</h3>
+            <p>
+              Undergraduate Computer Science & Engineering college students, academic instructors, 
+              and self-paced learners seeking rapid, verified revision tools for technical curricula.
+            </p>
+          </div>
+
+          <div class="about-detail-card">
+            <div class="detail-icon">&#9881;</div>
+            <h3>System Workflow</h3>
+            <p>
+              1. Local PDF management &rarr; 2. Source upload to Google NotebookLM &rarr; 3. Prompt execution using our 
+              optimized templates &rarr; 4. Local storage & formatting &rarr; 5. 8-Point Verification Audit & MCQ Testing.
+            </p>
+          </div>
+
+          <div class="about-detail-card">
+            <div class="detail-icon">&#127775;</div>
+            <h3>Key Benefits</h3>
+            <p>
+              - Zero backend dependency for seamless local deployment.<br>
+              - Complete user privacy with client-side localStorage.<br>
+              - Source grounding through NotebookLM citations.<br>
+              - Multimodal study through interactive quizzes and audio players.
+            </p>
+          </div>
+
+          <div class="about-detail-card">
+            <div class="detail-icon">&#9888;</div>
+            <h3>Limitations & AI Ethics</h3>
+            <p>
+              - Direct NotebookLM API is not publicly open; hence this platform functions as a structured pipeline partner.<br>
+              - Output accuracy is dependent on quality of source lecture slides.<br>
+              - Mandates human verification before high-stakes exams.
+            </p>
+          </div>
+        </div>
+
+        <!-- Responsible AI Practices Callout -->
+        <div class="panel-card ethical-ai-box">
+          <div class="ethical-header">
+            <span class="ethical-icon">&#128737;</span>
+            <div>
+              <h3>Responsible AI Principles in Higher Education</h3>
+              <p>Core standards adhered to throughout the development of Capstone 41:</p>
+            </div>
+          </div>
+          <div class="ethical-pillars-grid">
+            <div class="pillar-card">
+              <h4>1. Transparency</h4>
+              <p>We do not fake AI responses or falsely simulate backend servers. NotebookLM is explicitly linked as an external Google tool.</p>
+            </div>
+            <div class="pillar-card">
+              <h4>2. Source Grounding</h4>
+              <p>All AI study aids should trace back directly to lecture PDFs uploaded by the student with citation verification.</p>
+            </div>
+            <div class="pillar-card">
+              <h4>3. Human-in-the-Loop</h4>
+              <p>The student retains primary cognitive authority through our built-in 8-point verification checklist and MCQ quizzes.</p>
+            </div>
+            <div class="pillar-card">
+              <h4>4. Data Privacy</h4>
+              <p>Notes, quizzes, and verification audits are saved strictly in the user's browser localStorage without data harvesting.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Custom Study Guide Creator Modal -->
+  <div class="modal-overlay hidden" id="modal-create-guide">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Custom Study Guide</h3>
+        <button class="modal-close-btn" id="btn-close-modal-guide">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="custom-guide-form">
+          <div class="form-group">
+            <label for="custom-guide-title" class="form-label">Study Guide Title</label>
+            <input type="text" id="custom-guide-title" class="form-input" placeholder="e.g. CPU Scheduling Algorithms" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="custom-guide-subject" class="form-label">Subject</label>
+              <input type="text" id="custom-guide-subject" class="form-input" value="Operating Systems" required>
+            </div>
+            <div class="form-group flex-1">
+              <label for="custom-guide-topic" class="form-label">Topic / Unit</label>
+              <input type="text" id="custom-guide-topic" class="form-input" value="Unit 2: CPU Scheduling" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="custom-guide-definitions" class="form-label">Key Definitions & Core Concepts</label>
+            <textarea id="custom-guide-definitions" class="form-textarea" rows="3" placeholder="Enter important definitions and terms..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="custom-guide-keypoints" class="form-label">Important Points / Working Mechanisms</label>
+            <textarea id="custom-guide-keypoints" class="form-textarea" rows="3" placeholder="Enter key bullet points..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="custom-guide-examprep" class="form-label">Exam Preparation & Viva Tips</label>
+            <textarea id="custom-guide-examprep" class="form-textarea" rows="2" placeholder="Important exam formulas, frequent viva questions..."></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="btn-cancel-modal-guide">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Study Guide</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
